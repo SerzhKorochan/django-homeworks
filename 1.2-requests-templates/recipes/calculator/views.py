@@ -1,4 +1,6 @@
+from curses.ascii import HT
 from django.shortcuts import render
+from django.http import HttpResponse
 
 DATA = {
     'omlet': {
@@ -19,12 +21,16 @@ DATA = {
     # можете добавить свои рецепты ;)
 }
 
-# Напишите ваш обработчик. Используйте DATA как источник данных
-# Результат - render(request, 'calculator/index.html', context)
-# В качестве контекста должен быть передан словарь с рецептом:
-# context = {
-#   'recipe': {
-#     'ингредиент1': количество1,
-#     'ингредиент2': количество2,
-#   }
-# }
+def index(request, dish_name):
+    ingredients = DATA.get(dish_name)
+    servings = int(request.GET.get('servings', 1))
+
+    context = {}
+
+    if ingredients:
+        for name, count in ingredients.items():
+            ingredients[name] = count * servings
+
+        context['recipe'] = ingredients
+
+    return render(request, 'calculator/index.html', context)
