@@ -7,16 +7,13 @@ from .models import Article, Scope, ArticleScope
 
 class ArticleScopeInlineFormset(BaseInlineFormSet):
     def clean(self):
-        main_scopes_cnt = 0
-
-        for form in self.forms:
-            if form['is_main'].data == True:
-                main_scopes_cnt += 1
-                #from.cleaned_data.get('is_main')
+        scopes_quantity = len(
+            [form.cleaned_data['is_main'] for form in self.forms if form.cleaned_data['is_main'] == True]
+        )
         
-        if main_scopes_cnt == 0:
+        if scopes_quantity == 0:
             raise ValidationError('Укажите основной раздел')
-        elif main_scopes_cnt > 1:
+        elif scopes_quantity > 1:
             raise ValidationError('Основным может быть только один раздел')
 
         return super().clean()
