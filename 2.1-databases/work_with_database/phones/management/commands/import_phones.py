@@ -14,7 +14,7 @@ class Command(BaseCommand):
             phones = list(csv.DictReader(file, delimiter=';'))
 
         for phone in phones:
-            phone_obj = Phone(
+            phone_obj = Phone.objects.create(
                 id = phone['id'],
                 name = phone['name'],
                 image = phone['image'],
@@ -23,5 +23,3 @@ class Command(BaseCommand):
                 lte_exists = phone['lte_exists'],
                 slug = slugify(phone['name'])
             )
-            
-            phone_obj.save()

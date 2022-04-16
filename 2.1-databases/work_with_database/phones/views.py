@@ -7,16 +7,17 @@ def index(request):
 
 
 def show_catalog(request):
+    SORT_MAP = {
+        'name': 'name',
+        'min_price': 'price',
+        'max_price': '-price'
+    }
     template = 'catalog.html'
     phones = Phone.objects.all()
-    order_option = request.GET.get('sort')
+    sort = request.GET.get('sort')
 
-    if order_option == 'name':
-        phones = phones.order_by('name')
-    elif order_option == 'min_price':
-        phones = phones.order_by('price')
-    elif order_option == 'max_price':
-        phones = phones.order_by('-price')
+    if sort: 
+        phones = phones.order_by(SORT_MAP[sort])
 
     context = {
         'phones': phones
