@@ -18,11 +18,11 @@ class Article(models.Model):
 
 
 class Scope(models.Model):
-    tag = models.CharField(max_length=40, verbose_name='Разделы')
-    articles = models.ManyToManyField(Article, through='ArticleScope', related_name='scopes')
+    name = models.CharField(max_length=40, verbose_name='Разделы')
+    articles = models.ManyToManyField(Article, through='ArticleScope')
 
     def __str__(self) -> str:
-        return self.tag
+        return self.name
 
     class Meta:
         verbose_name = 'Раздел'
@@ -30,8 +30,8 @@ class Scope(models.Model):
 
 
 class ArticleScope(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name = 'Статья')
-    scope = models.ForeignKey(Scope, on_delete=models.CASCADE, verbose_name = 'Раздел')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name = 'Статья', related_name='scopes')
+    tag = models.ForeignKey(Scope, on_delete=models.CASCADE, verbose_name = 'Раздел')
     is_main = models.BooleanField(verbose_name='Основной')
 
     class Meta:

@@ -32,4 +32,4 @@ class ArticleAdmin(admin.ModelAdmin):
 
 @admin.register(Scope)
 class ScopeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'tag', ]
+    list_display = ['id', 'name', ]
