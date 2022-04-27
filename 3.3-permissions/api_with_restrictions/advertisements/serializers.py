@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AdvertisementSerializer(serializers.ModelSerializer):
     """Serializer для объявления."""
+    OPEN_ADS_ALLOWED = 10
 
     creator = UserSerializer(
         read_only=True,
@@ -38,8 +39,14 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def validate(self, data):
-        """Метод для валидации. Вызывается при создании и обновлении."""
+        user_id = self.context['request'].user.id
+        opened_advs = self.Meta.model.objects.filter(
+            creator=user_id, 
+            status='OPEN'
+        )
 
-        # TODO: добавьте требуемую валидацию
+        if len(opened_advs) >= self.OPEN_ADS_ALLOWED:
+            msg = f'Only {self.OPEN_ADS_ALLOWED} opened ads allowed!'
+            raise serializers.ValidationError(msg)
 
         return data
