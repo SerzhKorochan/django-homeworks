@@ -18,6 +18,11 @@ class Advertisement(models.Model):
         choices=AdvertisementStatusChoices.choices,
         default=AdvertisementStatusChoices.OPEN
     )
+    who_liked = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name = 'favourites',
+        blank=True
+    )
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
