@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -36,6 +37,21 @@ class AdvertisementViewSet(ModelViewSet):
     def get_favourites(self, request):
         data = [AdvertisementSerializer(obj).data for obj in request.user.favourites.all()]
         return Response(data=data, status=status.HTTP_200_OK)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(~Q(status='DRAFT'))
+
+        if request.user.is_authenticated:
+            drafts = self.get_queryset().filter(
+                status = 'DRAFT',
+                creator = request.user.id
+            )
+            queryset = queryset | drafts
+
+        queryset = self.filter_queryset(queryset)
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(data = serializer.data)
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
