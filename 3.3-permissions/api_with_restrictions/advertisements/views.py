@@ -35,7 +35,7 @@ class AdvertisementViewSet(ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def get_favourites(self, request):
-        data = [AdvertisementSerializer(obj).data for obj in request.user.favourites.all()]
+        data = self.get_serializer(request.user.favourites.all(), many=True).data
         return Response(data=data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):

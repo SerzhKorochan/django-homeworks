@@ -44,9 +44,9 @@ class AdvertisementSerializer(serializers.ModelSerializer):
             creator=user_id, 
             status='OPEN'
         )
-
-        if len(opened_advs) >= self.OPEN_ADS_ALLOWED:
-            msg = f'Only {self.OPEN_ADS_ALLOWED} opened ads allowed!'
-            raise serializers.ValidationError(msg)
+        if self.context.get('view').action == 'create' or data.get('status') == 'OPEN':
+            if len(opened_advs) >= self.OPEN_ADS_ALLOWED:
+                msg = f'Only {self.OPEN_ADS_ALLOWED} opened ads allowed!'
+                raise serializers.ValidationError(msg)
 
         return data
