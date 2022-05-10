@@ -8,7 +8,12 @@ from django.urls import reverse
 
 @pytest.fixture
 def course_url():
-    return '/api/v1/courses/'
+    def build_url(pk=None):
+        if pk:
+            return reverse('courses-detail', kwargs = {'pk': pk})
+        return reverse('courses-list')
+         
+    return build_url
 
 @pytest.fixture
 def api_client():
@@ -30,8 +35,7 @@ def student_factory():
 @pytest.mark.django_db
 def test_course_retrieve(api_client, course_url, course_factory):
     course = course_factory()
-    url = course_url + f"{course.id}/"
-    resp = api_client.get(url)
+    resp = api_client.get(course_url(course.id))
 
     assert resp.status_code == 200
 
@@ -42,7 +46,7 @@ def test_course_retrieve(api_client, course_url, course_factory):
 def test_course_list(api_client, course_url, course_factory):
     courses = course_factory(_quantity = 10)
 
-    resp = api_client.get(course_url)
+    resp = api_client.get(course_url())
 
     assert resp.status_code == 200
 
@@ -58,7 +62,7 @@ def test_filter_by_id(api_client, course_url, course_factory):
     courses = course_factory(_quantity = 10)
     selected_course = courses[0]
 
-    resp = api_client.get(course_url, data={'id': selected_course.id})
+    resp = api_client.get(course_url(), data={'id': selected_course.id})
 
     assert resp.status_code == 200
 
@@ -74,7 +78,7 @@ def test_filter_by_name(api_client, course_url, course_factory):
     selected_course = courses[0]
     the_same_courses_names = [course.name for course in courses if course.name == selected_course.name]
 
-    resp = api_client.get(course_url, data = {'name': selected_course.name})
+    resp = api_client.get(course_url(), data = {'name': selected_course.name})
 
     assert resp.status_code == 200
 
@@ -87,7 +91,7 @@ def test_filter_by_name(api_client, course_url, course_factory):
 @pytest.mark.parametrize('course_name', ['test1', 'test2', 'test3'])
 @pytest.mark.django_db
 def test_course_create(api_client, course_url, course_name):
-    resp = api_client.post(course_url, data={'name': course_name})
+    resp = api_client.post(course_url(), data={'name': course_name})
 
     assert resp.status_code == 201
 
@@ -99,9 +103,8 @@ def test_course_create(api_client, course_url, course_name):
 @pytest.mark.django_db
 def test_course_update(api_client, course_url, course_factory, new_course_name):
     course = course_factory()
-    url = course_url + f"{course.id}/"
 
-    resp = api_client.patch(url, data = {'name': new_course_name})
+    resp = api_client.patch(course_url(course.id), data = {'name': new_course_name})
 
     assert resp.status_code == 200
 
@@ -111,9 +114,8 @@ def test_course_update(api_client, course_url, course_factory, new_course_name):
 @pytest.mark.django_db
 def test_course_delete(api_client, course_url, course_factory):
     course = course_factory()
-    url = course_url + f"{course.id}/"
 
-    resp = api_client.delete(url)
+    resp = api_client.delete(course_url(course.id))
 
     assert resp.status_code == 204
     
