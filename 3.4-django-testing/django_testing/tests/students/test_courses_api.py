@@ -30,16 +30,13 @@ def student_factory():
 @pytest.mark.django_db
 def test_course_retrieve(api_client, course_url, course_factory):
     course = course_factory()
-
-    resp = api_client.get(course_url)
+    url = course_url + f"{course.id}/"
+    resp = api_client.get(url)
 
     assert resp.status_code == 200
 
     resp_json = resp.json()
-    assert len(resp_json) == 1
-
-    recieved_course = resp_json[0]
-    assert course.name == recieved_course.get('name')
+    assert course.name == resp_json.get('name')
 
 @pytest.mark.django_db
 def test_course_list(api_client, course_url, course_factory):
